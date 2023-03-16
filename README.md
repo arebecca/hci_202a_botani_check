@@ -12,6 +12,6 @@ Using the humidity & temperature sensor, BotaniCheck adds a communication layer 
 
 The program is built for Arduino
 
-### Cricuit Diagram
+### Circuit Diagram
 
 ![Diagram 3](https://user-images.githubusercontent.com/25793105/225476844-72d3335b-7b97-4027-a7ba-193bd9f57324.png)
