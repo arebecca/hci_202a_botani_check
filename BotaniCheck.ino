@@ -14,12 +14,6 @@ double _ABVAR_2_humidity = 0.0 ;
 Dht11 dht11_pin_6(6);
 
 
-const int AirValue = 600;   //you need to replace this value with Value_1
-const int WaterValue = 350;  //you need to replace this value with Value_2
-int soil_moisture_value = 0;
-int soil_moisture_percent = 0;
-
-
 bool plant_hum_status = true;
 bool plant_temp_status = true;
 
@@ -38,8 +32,8 @@ const int CACTUS = 8;
 const int ALOE_VERA = 9;
 const int SNAKE_PLANT = 10;
 
-const String LOW_HUM = "low";
-const String HIGH_HUM = "high";
+const String LOW_HUM_TEMP = "low";
+const String HIGH_HUM_TEMP = "high";
 
 
 int selected_type = 0;
@@ -107,34 +101,34 @@ String getPlantNameByType(int type) {
 String getPlantHumidity(int type, double value) {
     switch (type) {
       case ORCHIDS: {
-        return value < 60 ? LOW_HUM : (value > 80 ? HIGH_HUM : "");
+        return value < 60 ? LOW_HUM_TEMP : (value > 80 ? HIGH_HUM_TEMP : "");
         break;
       }
       case STAGHORN_FERN: {
-        return value < 70 ? LOW_HUM : (value > 80 ? HIGH_HUM : "");
+        return value < 70 ? LOW_HUM_TEMP : (value > 80 ? HIGH_HUM_TEMP : "");
         break;
       }
       case CALATHEAS:
       case ALOCASIA: {
-        return value < 50 ? LOW_HUM : (value > 60 ? HIGH_HUM : "");
+        return value < 50 ? LOW_HUM_TEMP : (value > 60 ? HIGH_HUM_TEMP : "");
         break;
       }
       case AIR_PLANT: {
-        return value < 50 ? LOW_HUM : (value > 70 ? HIGH_HUM : "");
+        return value < 50 ? LOW_HUM_TEMP : (value > 70 ? HIGH_HUM_TEMP : "");
         break;
       }
       case PHILODENDRON: {
-        return value < 60 ? LOW_HUM : (value > 70 ? HIGH_HUM : "");
+        return value < 60 ? LOW_HUM_TEMP : (value > 70 ? HIGH_HUM_TEMP : "");
         break;
       }
       case SUCCULENTS:
       case CACTUS:
       case ALOE_VERA: {
-        return value < 40 ? LOW_HUM : (value > 50 ? HIGH_HUM : "");
+        return value < 40 ? LOW_HUM_TEMP : (value > 50 ? HIGH_HUM_TEMP : "");
         break;
       }
       case SNAKE_PLANT: {
-        return value < 30 ? LOW_HUM : (value > 50 ? HIGH_HUM : "");
+        return value < 30 ? LOW_HUM_TEMP : (value > 50 ? HIGH_HUM_TEMP : "");
         break;
       }
       default: {
@@ -143,39 +137,43 @@ String getPlantHumidity(int type, double value) {
     }
 }
 
-
-String getPlantMoisture(int type, double value) {
+String getPlantTemperature(int type, double value) {
     switch (type) {
       case ORCHIDS: {
-        return value < 60 ? LOW_HUM : (value > 80 ? HIGH_HUM : "");
+        return value < 15 ? LOW_HUM_TEMP : (value > 32 ? HIGH_HUM_TEMP : "");
         break;
       }
       case STAGHORN_FERN: {
-        return value < 70 ? LOW_HUM : (value > 80 ? HIGH_HUM : "");
+        return value < 15 ? LOW_HUM_TEMP : (value > 37 ? HIGH_HUM_TEMP : "");
         break;
       }
       case CALATHEAS:
       case ALOCASIA: {
-        return value < 50 ? LOW_HUM : (value > 60 ? HIGH_HUM : "");
+        return value < 18 ? LOW_HUM_TEMP : (value > 30 ? HIGH_HUM_TEMP : "");
         break;
       }
       case AIR_PLANT: {
-        return value < 50 ? LOW_HUM : (value > 70 ? HIGH_HUM : "");
+        return value < 10 ? LOW_HUM_TEMP : (value > 32 ? HIGH_HUM_TEMP : "");
         break;
       }
       case PHILODENDRON: {
-        return value < 60 ? LOW_HUM : (value > 70 ? HIGH_HUM : "");
+        return value < 24 ? LOW_HUM_TEMP : (value > 30 ? HIGH_HUM_TEMP : "");
         break;
       }
-      case SUCCULENTS:
-      case CACTUS:
+      case SUCCULENTS: {
+        return value < 5 ? LOW_HUM_TEMP : (value > 27 ? HIGH_HUM_TEMP : "");
+        break;
+      }
+      case CACTUS: {
+        return value < 20 ? LOW_HUM_TEMP : (value > 35 ? HIGH_HUM_TEMP : "");
+        break;
+      }
       case ALOE_VERA: {
-        // updated
-        return value < 21 ? LOW_HUM : (value > 40 ? HIGH_HUM : "");
+        return value < 12 ? LOW_HUM_TEMP : (value > 30 ? HIGH_HUM_TEMP : "");
         break;
       }
       case SNAKE_PLANT: {
-        return value < 30 ? LOW_HUM : (value > 50 ? HIGH_HUM : "");
+        return value < 15 ? LOW_HUM_TEMP : (value > 24 ? HIGH_HUM_TEMP : "");
         break;
       }
       default: {
@@ -223,11 +221,6 @@ void setup()
 
 void loop()
 { 
-  soil_moisture_value = analogRead(A0);  //put Sensor insert into soil
-  soil_moisture_percent = map(soil_moisture_value, AirValue, WaterValue, 0, 100);
-  Serial.println("----------");
-  Serial.println(soil_moisture_percent);
-
   // ---------------
   ir_input = "";
 
@@ -302,25 +295,27 @@ void loop()
 
   lcd_I2C_Parallel.setCursor( (1) - 1, (1) - 1 );
   String current_humidity_level = getPlantHumidity(selected_type, _ABVAR_2_humidity);
-  String current_moisture_level = getPlantMoisture(selected_type, soil_moisture_percent);
 
-  if (current_moisture_level == LOW_HUM) {
-    lcd_I2C_Parallel.print( "I'm thirsty :(  " );
+  if (current_humidity_level == LOW_HUM_TEMP) {
+    lcd_I2C_Parallel.print( "Too dry :(      " );
     plant_hum_status = false;
-  } else if (current_moisture_level == HIGH_HUM) {
-    lcd_I2C_Parallel.print( "Too much water  " );
+  } else if (current_humidity_level == HIGH_HUM_TEMP) {
+    lcd_I2C_Parallel.print( "Too humid :(    " );
     plant_hum_status = false;
   } else {
-    lcd_I2C_Parallel.print( "I'm fine :)     ");
+    lcd_I2C_Parallel.print( "Humidity OK :)  ");
     plant_hum_status = true;
   }
+  
+  String current_temp_level = getPlantTemperature(selected_type, _ABVAR_3_temperature);
+  // Serial.println(current_temp_level);
 
   lcd_I2C_Parallel.setCursor( (1) - 1, (2) - 1 );
-  if ( _ABVAR_3_temperature < 10 )
+  if ( current_temp_level == LOW_HUM_TEMP )
   {
-    lcd_I2C_Parallel.print( "I'm cold :(     " );
+    lcd_I2C_Parallel.print( "It's cold :(    " );
     plant_temp_status = false;
-  } else if (_ABVAR_3_temperature > 30) {
+  } else if (current_temp_level == HIGH_HUM_TEMP) {
     lcd_I2C_Parallel.print( "I's hot :(      " );
     plant_temp_status = false;
   } else {
